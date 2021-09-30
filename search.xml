@@ -1,132 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>依赖倒置原则</title>
-    <url>/2021/09/05/DIP/</url>
-    <content><![CDATA[<h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><h2 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h2><h3 id="依赖倒置原则（Dependence-Inversion-Principle，DIP）"><a href="#依赖倒置原则（Dependence-Inversion-Principle，DIP）" class="headerlink" title="依赖倒置原则（Dependence Inversion Principle，DIP）"></a>依赖倒置原则（Dependence Inversion Principle，DIP）</h3><ol>
-<li>高层模块不应该依赖低层模块，两者都应该依赖其抽象</li>
-<li>抽象不应该依赖细节</li>
-<li>细节应该依赖抽象</li>
-</ol>
-<blockquote>
-<p>抽象就是接口或抽象类 不能直接被实例化</p>
-<p>细节就是实现类可以直接被实例化</p>
-</blockquote>
-<hr>
-<h4 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h4><center>
-<img src="/.io//Images/dip.png" width="50%">
-</center>
-
-<h5 id="修改前"><a href="#修改前" class="headerlink" title="修改前"></a>修改前</h5><p>司机源代码</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Driver &#123;</span><br><span class="line">//主要职责就是驾驶汽车</span><br><span class="line">public void drive(Benz benz) &#123;</span><br><span class="line">	benz.run();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>奔驰车源代码</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Benz &#123;</span><br><span class="line">public void run() &#123;</span><br><span class="line">	System.out.println(&quot;奔驰车开始跑了&quot;);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>场景类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Client &#123;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Driver zhangSanDriver = new Driver();</span><br><span class="line">		Benz benz = new Benz();</span><br><span class="line">		zhangSanDriver.drive(benz);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>宝马车源代码</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class BMW &#123;</span><br><span class="line">public void run() &#123;</span><br><span class="line">	System.out.println(&quot;宝马开始运行了&quot;);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h6 id="问题：新增宝马车，司机却开不了！"><a href="#问题：新增宝马车，司机却开不了！" class="headerlink" title="问题：新增宝马车，司机却开不了！"></a>问题：新增宝马车，司机却开不了！</h6><p>司机和奔驰车类是紧耦合关系，系统可维护性降低，可读性低。</p>
-<p>并行开发引起的风险<br>缺少Benz类，Driver类无法编译，更无法测试，其必须先等待Benz类开发完成。</p>
-<hr>
-<h5 id="修改后"><a href="#修改后" class="headerlink" title="修改后"></a>修改后</h5><p>司机接口</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public interface IDriver &#123;</span><br><span class="line">    //是司机就应该会驾驶汽车</span><br><span class="line">	public void drive(ICar car);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>司机类的实现</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Driver implements IDriver &#123;</span><br><span class="line"></span><br><span class="line">@Override</span><br><span class="line">public void drive(ICar car) &#123;</span><br><span class="line">	 </span><br><span class="line">	car.run();</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>汽车接口及两个类的实现</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public interface ICar &#123;</span><br><span class="line">	</span><br><span class="line">	public void run();</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class BMW implements ICar&#123;</span><br><span class="line">public void run() &#123;</span><br><span class="line">	System.out.println(&quot;宝马开始运行了&quot;);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">public class Benz implements ICar &#123;</span><br><span class="line">public void run() &#123;</span><br><span class="line">	System.out.println(&quot;奔驰车开始跑了&quot;);</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>业务场景</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Client &#123;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		 </span><br><span class="line">		Driver zhangSanDriver = new Driver();</span><br><span class="line">		ICar benz = new Benz();</span><br><span class="line">		ICar bmwCar = new BMW();</span><br><span class="line">		zhangSanDriver.drive(benz);</span><br><span class="line">		zhangSanDriver.drive(bmwCar);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h6 id="新增加低层模块时，只需要修改业务场景类，也就是高层模块，对其他低层模块如Driver类无需修改，业务就可以运行，把“变更”的风险扩散降到最低。"><a href="#新增加低层模块时，只需要修改业务场景类，也就是高层模块，对其他低层模块如Driver类无需修改，业务就可以运行，把“变更”的风险扩散降到最低。" class="headerlink" title="新增加低层模块时，只需要修改业务场景类，也就是高层模块，对其他低层模块如Driver类无需修改，业务就可以运行，把“变更”的风险扩散降到最低。"></a>新增加低层模块时，只需要修改业务场景类，也就是高层模块，对其他低层模块如Driver类无需修改，业务就可以运行，把“变更”的风险扩散降到最低。</h6><h5 id="最佳实践："><a href="#最佳实践：" class="headerlink" title="最佳实践："></a>最佳实践：</h5><ul>
-<li>每个类尽量都有接口或抽象类，或者两者兼备</li>
-<li>变量的表面类型尽量使接口或者抽象类</li>
-<li>任何类都不应该从具体类派生（维护人员除外）</li>
-<li>尽量不要覆写基类的方法</li>
-<li>结合里氏替换原则使用</li>
+    <title>module</title>
+    <url>/2021/09/30/module/</url>
+    <content><![CDATA[<h1 id="这是一个写作模板"><a href="#这是一个写作模板" class="headerlink" title="这是一个写作模板"></a>这是一个写作模板</h1><ul>
+<li>对应文件夹同名</li>
 </ul>
 ]]></content>
       <categories>
-        <category>设计模式</category>
-        <category>设计原则</category>
+        <category>其它</category>
+        <category>模板</category>
       </categories>
       <tags>
-        <tag>Testing</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title></title>
-    <url>/2021/09/05/LoD/</url>
-    <content><![CDATA[<h1 id="设计模式"><a href="#设计模式" class="headerlink" title="设计模式"></a>设计模式</h1><h2 id="设计原则"><a href="#设计原则" class="headerlink" title="设计原则"></a>设计原则</h2><h3 id="迪米特法则（Law-of-Demeter-Lod）"><a href="#迪米特法则（Law-of-Demeter-Lod）" class="headerlink" title="迪米特法则（Law of Demeter, Lod）"></a>迪米特法则（Law of Demeter, Lod）</h3><ol>
-<li>最少知识原则：一个对象应该对其他对象有最少的了解</li>
-<li>只和朋友交流–出现在成员变量、方法的输入输出参数中的类称为朋友类，而出现在方法体内部的类不属于朋友类</li>
-<li>朋友之间也是有距离的–迪米特法则要求尽量不要对外公布太多的public方法和非静态的public变量，尽量内敛，多使用private、package-private、protected等访问权限</li>
-<li>是自己的就是自己的–如果一个方法放在本类中，既不增加类间关系，也不对本类产生负面影响，那就放置在本类</li>
-<li>谨慎使用Serializable</li>
-</ol>
-<hr>
-<h4 id="示例："><a href="#示例：" class="headerlink" title="示例："></a>示例：</h4><center>
-<img src="/.io//Images/lod.png" width="50%">
-</center>
-
-<h5 id="修改前"><a href="#修改前" class="headerlink" title="修改前"></a>修改前</h5><p>老师类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Teacher &#123;</span><br><span class="line"></span><br><span class="line">	public void commond(GroupLeader groupLeader) &#123;</span><br><span class="line">		List&lt;Girl&gt; listGirls = new ArrayList&lt;Girl&gt;();</span><br><span class="line">		</span><br><span class="line">		for(int i = 0;i&lt;20;i++) &#123;</span><br><span class="line">			listGirls.add(new Girl());	</span><br><span class="line">		&#125;</span><br><span class="line">		groupLeader.countGirls(listGirls);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>体育委员类实现过程</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class GroupLeader &#123;</span><br><span class="line"></span><br><span class="line">	public void countGirls(List&lt;Girl&gt; listGirls) &#123;</span><br><span class="line">		System.out.println(&quot;女生数量是：&quot;+ listGirls.size());</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>女生类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Girl &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>场景类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Client &#123;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		Teacher teacher = new Teacher();</span><br><span class="line">		teacher.commond(new GroupLeader());</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h6 id="问题：Teacher只有一个朋友类–GroupLeader，但commond方法却与Girl类（非朋友类）有了交流！"><a href="#问题：Teacher只有一个朋友类–GroupLeader，但commond方法却与Girl类（非朋友类）有了交流！" class="headerlink" title="问题：Teacher只有一个朋友类–GroupLeader，但commond方法却与Girl类（非朋友类）有了交流！"></a>问题：Teacher只有一个朋友类–GroupLeader，但commond方法却与Girl类（非朋友类）有了交流！</h6><p>方法是类的一个行为，类竟然不知道自己的行为与其他类产生依赖关系，这是不允许的</p>
-<hr>
-<h5 id="修改后"><a href="#修改后" class="headerlink" title="修改后"></a>修改后</h5><p>修改后的老师类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Teacher &#123;</span><br><span class="line"></span><br><span class="line">	public void commond(GroupLeader groupLeader) &#123;</span><br><span class="line">		</span><br><span class="line">		groupLeader.countGirls();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>修改后的体育委员类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class GroupLeader &#123;</span><br><span class="line"></span><br><span class="line">	private List&lt;Girl&gt; listGirls;</span><br><span class="line">	public GroupLeader(List&lt;Girl&gt; _listGirls) &#123;</span><br><span class="line">		this.listGirls = _listGirls;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">	public void countGirls() &#123;</span><br><span class="line">		System.out.println(&quot;女生数量是：&quot;+ this.listGirls.size());</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>修改后的场景类</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">public class Client &#123;</span><br><span class="line"></span><br><span class="line">	public static void main(String[] args) &#123;</span><br><span class="line">		//产生一个女生群体</span><br><span class="line">List&lt;Girl&gt; listGirls = new ArrayList&lt;Girl&gt;();</span><br><span class="line">		</span><br><span class="line">		for(int i = 0;i&lt;20;i++) &#123;</span><br><span class="line">			listGirls.add(new Girl());	</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">		Teacher teacher = new Teacher();</span><br><span class="line">		teacher.commond(new GroupLeader(listGirls));</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h6 id="把Teacher中对List的初始化移动到了场景类中，同时在GroupLeader中增加了对Girl的注入，避开了Teacher类对陌生类Girl的访问，降低了系统间的耦合，提高了系统的健壮性。"><a href="#把Teacher中对List的初始化移动到了场景类中，同时在GroupLeader中增加了对Girl的注入，避开了Teacher类对陌生类Girl的访问，降低了系统间的耦合，提高了系统的健壮性。" class="headerlink" title="把Teacher中对List的初始化移动到了场景类中，同时在GroupLeader中增加了对Girl的注入，避开了Teacher类对陌生类Girl的访问，降低了系统间的耦合，提高了系统的健壮性。"></a>把Teacher中对List<Girl>的初始化移动到了场景类中，同时在GroupLeader中增加了对Girl的注入，避开了Teacher类对陌生类Girl的访问，降低了系统间的耦合，提高了系统的健壮性。</Girl></h6>]]></content>
-  </entry>
-  <entry>
-    <title>secondTest</title>
-    <url>/2021/08/29/secondTest/</url>
-    <content><![CDATA[]]></content>
-      <tags>
-        <tag>This is the secondTest</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Hello World</title>
-    <url>/2021/08/29/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
-  </entry>
-  <entry>
-    <title>test</title>
-    <url>/2021/09/30/test/</url>
-    <content><![CDATA[<h1 id="倒数第二次测试"><a href="#倒数第二次测试" class="headerlink" title="倒数第二次测试"></a>倒数第二次测试</h1>]]></content>
-  </entry>
-  <entry>
-    <title>标签测试文章标题</title>
-    <url>/2021/09/30/test9302/</url>
-    <content><![CDATA[<h1 id="内容为空"><a href="#内容为空" class="headerlink" title="内容为空"></a>内容为空</h1>]]></content>
-      <categories>
-        <category>分类测试</category>
-      </categories>
-      <tags>
-        <tag>标签1</tag>
-        <tag>标签2</tag>
+        <tag>模板</tag>
       </tags>
   </entry>
 </search>
