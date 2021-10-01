@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/dove32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/dove.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"spruing.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"always","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="责任链模式（职责链模式、命令链）责任链模式是一种行为设计模式，允许你将请求沿着处理者链进行发送。收到请求后，每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。 责任链模式结构     处理者（Handler）声明了所有具体处理者的通用接口。该接口通常仅包含单个方法用于请求处理，但有时其还会包含一个设置链上下个处理者的方法。 基础处理者（Base Handler）是一个可选的类，你可以将所">
+<meta property="og:type" content="article">
+<meta property="og:title" content="责任链模式">
+<meta property="og:url" content="http://spruing.github.io/2021/10/01/Chain%20of%20Responsibility/index.html">
+<meta property="og:site_name" content="小飞的不落鸽">
+<meta property="og:description" content="责任链模式（职责链模式、命令链）责任链模式是一种行为设计模式，允许你将请求沿着处理者链进行发送。收到请求后，每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。 责任链模式结构     处理者（Handler）声明了所有具体处理者的通用接口。该接口通常仅包含单个方法用于请求处理，但有时其还会包含一个设置链上下个处理者的方法。 基础处理者（Base Handler）是一个可选的类，你可以将所">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://refactoringguru.cn/images/patterns/diagrams/chain-of-responsibility/structure-indexed.png">
+<meta property="og:image" content="https://refactoringguru.cn/images/patterns/diagrams/chain-of-responsibility/example-zh.png">
+<meta property="article:published_time" content="2021-10-01T08:48:51.351Z">
+<meta property="article:modified_time" content="2021-10-01T08:47:50.558Z">
+<meta property="article:author" content="小飞">
+<meta property="article:tag" content="设计模式">
+<meta property="article:tag" content="连接发送者和接收者">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://refactoringguru.cn/images/patterns/diagrams/chain-of-responsibility/structure-indexed.png">
+
+<link rel="canonical" href="http://spruing.github.io/2021/10/01/Chain%20of%20Responsibility/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>责任链模式 | 小飞的不落鸽</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">小飞的不落鸽</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>归档</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-favorites">
+
+    <a href="/favorites/" rel="section"><i class="fa fa-fw fa-star"></i>收藏</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>关于</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://spruing.github.io/2021/10/01/Chain%20of%20Responsibility/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/hexo.jpg">
+      <meta itemprop="name" content="小飞">
+      <meta itemprop="description" content="人终将会死去✓ 人只能活一次✗">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="小飞的不落鸽">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          责任链模式
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2021-10-01 16:48:51 / 修改时间：16:47:50" itemprop="dateCreated datePublished" datetime="2021-10-01T16:48:51+08:00">2021-10-01</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" itemprop="url" rel="index"><span itemprop="name">面向对象</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">设计模式</span></a>
+                </span>
+                  ，
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/%E8%A1%8C%E4%B8%BA%E6%A8%A1%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">行为模式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="责任链模式（职责链模式、命令链）"><a href="#责任链模式（职责链模式、命令链）" class="headerlink" title="责任链模式（职责链模式、命令链）"></a>责任链模式（职责链模式、命令链）</h1><p>责任链模式是一种行为设计模式，允许你将请求沿着处理者链进行发送。收到请求后，每个处理者均可对请求进行处理，或将其传递给链上的下个处理者。</p>
+<p><strong>责任链模式结构</strong></p>
+<img src="https://refactoringguru.cn/images/patterns/diagrams/chain-of-responsibility/structure-indexed.png" width="60%">
+
+
+<ol>
+<li>处理者（Handler）声明了所有具体处理者的通用接口。该接口通常仅包含单个方法用于请求处理，但有时其还会包含一个设置链上下个处理者的方法。</li>
+<li>基础处理者（Base Handler）是一个可选的类，你可以将所有处理者共用的样本代码放置在其中。通常情况下，该类中定义了一个保存对于下个处理者引用的成员变量。客户端可通过将处理者传递给上个处理者的构造函数或设定方法来创建链。该类还可以实现默认的处理行为：确定下个处理者存在后再将请求传递给它。</li>
+<li>具体处理者（Concrete Handlers）包含处理请求的实际代码。每个处理者接收到请求后，都必须决定是否进行处理，以及是否沿着链传递请求。处理者通常是独立且不可变的，需要通过构造函数一次性地获得所有必要的数据。</li>
+<li>客户端（Client）可根据程序逻辑一次性或者动态地生成链。值得注意的是，请求可发送给链上的任意一个处理者，而非必须是第一个处理者。</li>
+</ol>
+<hr>
+<h5 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h5><p>在本例中，责任链模式负责为活动的GUI元素显示上下文帮助信息。</p>
+<img src="https://refactoringguru.cn/images/patterns/diagrams/chain-of-responsibility/example-zh.png" width="60%">
+
+
+<p>GUI类使用组合模式生成。每个元素都链接到自己的容器元素。可随时构建从当前元素开始的、遍历其所有容器的元素链。</p>
+<p>应用程序的GUI通常为对象树结构。例如，负责渲染程序主窗口的对话框类就是对象树的根节点。对话框包含面板，而面板可能包含其他面板，或是按钮和文本框等下层元素。只要给一个简单的组件指定帮助文本，它就可显示简短的上下文提示。但更复杂的组件可自定义上下文帮助文本的显示方式，例如显示手册摘录内容或在浏览器中打开一个网页。当用户将鼠标指针移动到某个元素并按下F1键时，程序检测到指针下的组件并对其发送帮助请求。该请求不断向上传递到该元素所有的容器，直至某个元素能够显示帮助信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line">// 处理者接口声明了一个创建处理者链的方法。还声明了一个执行请求的方法。</span><br><span class="line">interface ComponentWithContextualHelp is</span><br><span class="line">    method showHelp()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 简单组件的基础类。</span><br><span class="line">abstract class Component implements ComponentWithContextualHelp is</span><br><span class="line">    field tooltipText: string</span><br><span class="line"></span><br><span class="line">    // 组件容器在处理者链中作为“下一个”链接。</span><br><span class="line">    protected field container: Container</span><br><span class="line"></span><br><span class="line">    // 如果组件设定了帮助文字，那它将会显示提示信息。如果组件没有帮助文字</span><br><span class="line">    // 且其容器存在，那它会将调用传递给容器。</span><br><span class="line">    method showHelp() is</span><br><span class="line">        if (tooltipText != null)</span><br><span class="line">            // 显示提示信息。</span><br><span class="line">        else</span><br><span class="line">            container.showHelp()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 容器可以将简单组件和其他容器作为其子项目。链关系将在这里建立。该类将从</span><br><span class="line">// 其父类处继承 showHelp（显示帮助）的行为。</span><br><span class="line">abstract class Container extends Component is</span><br><span class="line">    protected field children: array of Component</span><br><span class="line"></span><br><span class="line">    method add(child) is</span><br><span class="line">        children.add(child)</span><br><span class="line">        child.container = this</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 原始组件应该能够使用帮助操作的默认实现...</span><br><span class="line">class Button extends Component is</span><br><span class="line">    // ...</span><br><span class="line"></span><br><span class="line">// 但复杂组件可能会对默认实现进行重写。如果无法以新的方式来提供帮助文字，</span><br><span class="line">// 那组件总是还能调用基础实现的（参见 Component 类）。</span><br><span class="line">class Panel extends Container is</span><br><span class="line">    field modalHelpText: string</span><br><span class="line"></span><br><span class="line">    method showHelp() is</span><br><span class="line">        if (modalHelpText != null)</span><br><span class="line">            // 显示包含帮助文字的模态窗口。</span><br><span class="line">        else</span><br><span class="line">            super.showHelp()</span><br><span class="line"></span><br><span class="line">// ...同上...</span><br><span class="line">class Dialog extends Container is</span><br><span class="line">    field wikiPageURL: string</span><br><span class="line"></span><br><span class="line">    method showHelp() is</span><br><span class="line">        if (wikiPageURL != null)</span><br><span class="line">            // 打开百科帮助页面。</span><br><span class="line">        else</span><br><span class="line">            super.showHelp()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">// 客户端代码。</span><br><span class="line">class Application is</span><br><span class="line">    // 每个程序都能以不同方式对链进行配置。</span><br><span class="line">    method createUI() is</span><br><span class="line">        dialog = new Dialog(&quot;预算报告&quot;)</span><br><span class="line">        dialog.wikiPageURL = &quot;http://...&quot;</span><br><span class="line">        panel = new Panel(0, 0, 400, 800)</span><br><span class="line">        panel.modalHelpText = &quot;本面板用于...&quot;</span><br><span class="line">        ok = new Button(250, 760, 50, 20, &quot;确认&quot;)</span><br><span class="line">        ok.tooltipText = &quot;这是一个确认按钮...&quot;</span><br><span class="line">        cancel = new Button(320, 760, 50, 20, &quot;取消&quot;)</span><br><span class="line">        // ...</span><br><span class="line">        panel.add(ok)</span><br><span class="line">        panel.add(cancel)</span><br><span class="line">        dialog.add(panel)</span><br><span class="line"></span><br><span class="line">    // 想象这里会发生什么。</span><br><span class="line">    method onF1KeyPress() is</span><br><span class="line">        component = this.getComponentAtMouseCoords()</span><br><span class="line">        component.showHelp()</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="责任链模式的应用"><a href="#责任链模式的应用" class="headerlink" title="责任链模式的应用"></a>责任链模式的应用</h3><ol>
+<li>使用场景</li>
+</ol>
+<ul>
+<li>当程序需要使用不同方式处理不同种类请求，而且请求类型和顺序预先未知时，可以使用责任链模式。该模式能将多个处理者连接成一条链。接收到请求后，它会“询问”每个处理者是否能够对其进行处理。这样所有处理者都有机会来处理请求。</li>
+<li>当必须按顺序执行多个处理者时，可以使用该模式。无论你以何种顺序将处理者连接成一条链，所有请求都会严格按照顺序通过链上的处理者。</li>
+<li>如果所需处理者及其顺序必须在运行时进行改变，可以使用责任链模式。如果在处理者类中有对引用成员变量的设定方法，你将能动态地插入和移除处理者，或者改变其顺序。</li>
+</ul>
+<ol start="2">
+<li>实现方式</li>
+</ol>
+<ul>
+<li>声明处理者接口并描述请求处理方法的签名。确定客户端如何将请求数据传递给方法。最灵活的方式是将请求转换为对象，然后将其以参数的形式传递给处理函数。</li>
+<li>为了在具体处理者中消除重复的样本代码，你可以根据处理者接口创建抽象处理者基类。该类需要有一个成员变量来存储指向链上下个处理者的引用。你可以将其设置为不可变类。但如果你打算在运行时对链进行改变，则需要定义一个设定方法来修改引用成员变量的值。为了使用方便，你还可以实现处理方法的默认行为。如果还有剩余对象，该方法会将请求传递给下个对象。具体处理者还能够通过调用父类对象的方法来使用这一行为。</li>
+<li>一次创建具体处理者子类并实现其处理方法。每个处理者在接收到请求后都必须做出两个决定：是否自行处理这个请求，是否将该请求沿着链进行传递。</li>
+<li>客户端可以自行组装链，或者从其他对象处获得预先组装好的链。在后一种情况下，你必须实现工厂类以根据配置或环境设置来创建链。</li>
+<li>客户端可以触发链中的任意处理者，而不仅仅是第一个。请求将通过连进行传递，直至某个处理者拒绝继续传递，或者请求到达链尾。</li>
+<li>由于链的动态性，客户端需要准备好处理一下情况：链中可能只有单个链接、部分请求可能无法到达链尾、其他请求可能直到链尾都未被处理。</li>
+</ul>
+<ol start="3">
+<li>优点</li>
+</ol>
+<ul>
+<li>可以控制请求处理的顺序。</li>
+<li>单一职责原则。你可对发起操作和执行操作的类进行解耦。</li>
+<li>开闭原则。你可以在不更改现有代码的情况下在程序中新增处理者。</li>
+</ul>
+<ol start="4">
+<li>缺点</li>
+</ol>
+<ul>
+<li>部分请求可能未被处理。</li>
+</ul>
+<h3 id="与其他模式的关系"><a href="#与其他模式的关系" class="headerlink" title="与其他模式的关系"></a>与其他模式的关系</h3><ul>
+<li>责任链模式、命令模式、中介者模式和观察者模式用于处理请求发送者和接收者之间的不同连接方式：</li>
+</ul>
+<ol>
+<li>责任链按照顺序将请求动态传递给一系列的潜在接收者，直至其中一名接收者对请求进行处理。</li>
+<li>命令在发送者和请求者之间建立单向连接。</li>
+<li>中介者清除了发送者和请求者之间的直接连接，强制它们通过一个中介对象进行间接沟通。</li>
+<li>观察者允许接收者动态地订阅或取消接受请求。</li>
+</ol>
+<ul>
+<li>责任链通常和组合模式结合使用。在这种情况下，叶组件接收到请求后，可以将请求沿包含全体父组件的链一直传递至对象树的底部。</li>
+<li>责任链的管理者可使用命令模式实现。在这种情况下，你可以对由请求代表的同一个上下文对象执行许多不同的操作。还有另外一种实现方式，那就是请求自身就是一个命令对象。在这种情况下，你可以对由一系列不同上下文连接而成的链执行相同的操作。</li>
+<li>责任链和装饰模式的类结构非常相似。两者都依赖递归组合将需要执行的操作传递给一系列对象。责任链的管理者可以相互独立地执行一切操作，还可以随时停止传递请求。另一方面，各种装饰可以在遵循基本接口的情况下扩展对象的行为。此外，装饰无法中断请求的传递。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" rel="tag"># 设计模式</a>
+              <a href="/tags/%E8%BF%9E%E6%8E%A5%E5%8F%91%E9%80%81%E8%80%85%E5%92%8C%E6%8E%A5%E6%94%B6%E8%80%85/" rel="tag"># 连接发送者和接收者</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2021/09/30/module/" rel="prev" title="module">
+      <i class="fa fa-chevron-left"></i> module
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2021/10/01/Observer/" rel="next" title="观察者模式">
+      观察者模式 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F%EF%BC%88%E8%81%8C%E8%B4%A3%E9%93%BE%E6%A8%A1%E5%BC%8F%E3%80%81%E5%91%BD%E4%BB%A4%E9%93%BE%EF%BC%89"><span class="nav-text">责任链模式（职责链模式、命令链）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B"><span class="nav-text">示例</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%A3%E4%BB%BB%E9%93%BE%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%BA%94%E7%94%A8"><span class="nav-text">责任链模式的应用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8E%E5%85%B6%E4%BB%96%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">与其他模式的关系</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="小飞"
+      src="/images/hexo.jpg">
+  <p class="site-author-name" itemprop="name">小飞</p>
+  <div class="site-description" itemprop="description">人终将会死去✓ 人只能活一次✗</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">5</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/spruing" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;spruing" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:120982654@qq.com" title="E-Mail → mailto:120982654@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">小飞</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
